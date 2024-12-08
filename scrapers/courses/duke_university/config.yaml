@@ -1,0 +1,15 @@
+department_catalog_url: https://trinity.duke.edu/departments
+curriculum_codes:
+  areas_of_knowledge:
+    - ALP
+    - CZ
+    - NS
+    - QS
+    - SS
+  modes_of_inquiry:
+    - CCI
+    - EI
+    - FL
+    - R
+    - STS
+    - W
