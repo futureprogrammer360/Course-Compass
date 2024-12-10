@@ -103,7 +103,7 @@ class DepartmentCourseCatalogsScraper:
                 url = url["href"]
                 url = urljoin(course_catalog_url, url)
             codes = tr.select("td")[2].text.split(", ")
-            codes = [code.strip() for code in codes if code in valid_curriculum_codes]
+            codes = [code.strip() for code in codes if code.strip() in valid_curriculum_codes]
 
             self.course_data[department_name].append({
                 "title": title,
