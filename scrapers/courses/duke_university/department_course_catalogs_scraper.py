@@ -4,7 +4,7 @@ Program that downloads data about Duke University courses from Trinity College o
 """
 
 import re
-from os import path, makedirs
+from os import path, makedirs, listdir
 import json
 from urllib.parse import urljoin
 
@@ -34,6 +34,17 @@ class DepartmentCourseCatalogsScraper:
     def __init__(self):
         self.course_catalog_urls = {}
         self.course_data = {}
+        if "course_catalog_urls.json" in listdir(CACHE_DIR):
+            with open(path.join(CACHE_DIR, "course_catalog_urls.json"), "r") as file:
+                self.course_catalog_urls = json.load(file)
+        if "course_data.json" in listdir(CACHE_DIR):
+            with open(path.join(CACHE_DIR, "course_data.json"), "r") as file:
+                self.course_data = json.load(file)
+
+        self.courses_with_scraped_description = []
+        if "courses_with_scraped_description.json" in listdir(CACHE_DIR):
+            with open(path.join(CACHE_DIR, "courses_with_scraped_description.json"), "r") as file:
+                self.courses_with_scraped_description = json.load(file)
 
     def run(self):
         """
@@ -41,10 +52,12 @@ class DepartmentCourseCatalogsScraper:
         2. From each department course catalog, scrape basic course data (course title, number, curriculum codes, URL)
         3. Visit each course URL and scrape course description
         """
-        self.get_course_catalog_urls()
+        if not self.course_catalog_urls:
+            self.get_course_catalog_urls()
 
-        for department_name in self.course_catalog_urls:
-            self.get_course_data(department_name)
+        if not self.course_data:
+            for department_name in self.course_catalog_urls:
+                self.get_course_data(department_name)
 
         for department_courses in self.course_data.values():
             for course in department_courses:
@@ -54,6 +67,8 @@ class DepartmentCourseCatalogsScraper:
             json.dump(self.course_catalog_urls, file, indent=2)
         with open(path.join(CACHE_DIR, "course_data.json"), "w") as file:
             json.dump(self.course_data, file, indent=2)
+        with open(path.join(CACHE_DIR, "courses_with_scraped_description.json"), "w") as file:
+            json.dump(self.courses_with_scraped_description, file, indent=2)
 
     def get_course_catalog_urls(self):
         """Get list of URLs to department course catalogs"""
