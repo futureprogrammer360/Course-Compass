@@ -7,6 +7,7 @@ import re
 from os import path, makedirs, listdir
 import json
 from urllib.parse import urljoin
+import time
 
 import yaml
 import requests
@@ -32,6 +33,8 @@ class DepartmentCourseCatalogsScraper:
     """
 
     def __init__(self):
+        self.init_time = time.time()
+
         self.course_catalog_urls = {}
         self.course_data = {}
         if "course_catalog_urls.json" in listdir(CACHE_DIR):
@@ -59,9 +62,10 @@ class DepartmentCourseCatalogsScraper:
             for department_name in self.course_catalog_urls:
                 self.get_course_data(department_name)
 
-        for department_courses in self.course_data.values():
-            for course in department_courses:
-                self.get_course_description(course)
+        try:
+            self.scrape_batch_of_course_descriptions(config.get("course_descriptions_scraper_batch_size"))
+        except Exception as e:
+            print(f"Exception raised: {e}")
 
         with open(path.join(CACHE_DIR, "course_catalog_urls.json"), "w") as file:
             json.dump(self.course_catalog_urls, file, indent=2)
@@ -69,6 +73,9 @@ class DepartmentCourseCatalogsScraper:
             json.dump(self.course_data, file, indent=2)
         with open(path.join(CACHE_DIR, "courses_with_scraped_description.json"), "w") as file:
             json.dump(self.courses_with_scraped_description, file, indent=2)
+
+    def get_elapsed_time(self):
+        return time.time() - self.init_time
 
     def get_course_catalog_urls(self):
         """Get list of URLs to department course catalogs"""
@@ -127,10 +134,72 @@ class DepartmentCourseCatalogsScraper:
                 "url": url
             })
 
-    def get_course_description(self, course: dict):
-        pass
+    def get_course_description(self, course_data: dict) -> dict:
+        """Given basic course data (including URL, if available), visit course page and scrape course description, prerequisites, cross-listed course numbers, and typical offered terms"""
+        print(f"Getting course description for {course_data['number']}")
+        if course_data.get("url") is None:
+            return course_data
+
+        url = course_data["url"]
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        section_section = soup.select_one("div#main div#content section.section")
+        div = section_section.select_one("section > div#block-tts-sub-content")
+        if div is None:
+            div = section_section.select_one("div#block-tts-labs-ctrs-content")
+        left_div, right_div = div.select("div.content > div > div")
+
+        description = left_div.select_one("div")
+        if description:
+            description = description.text
+        else:
+            description = None
+
+        prerequisites = None
+        prerequisites_label = left_div.find("h4", string="Prerequisites")
+        if prerequisites_label is not None:
+            prerequisites = prerequisites_label.find_next_sibling().text.strip()
+
+        typically_offered_label = right_div.find("h5", string="Typically Offered", recursive=False)
+        typically_offered = None
+        if typically_offered_label is not None:
+            typically_offered = typically_offered_label.find_next_sibling(string=True).strip()
+
+        cross_listed_as = []
+        for div in right_div.select("div.field"):
+            label = div.select_one("h5")
+            if label is not None:
+                label = label.text
+                lis = div.select("ul > li")
+                if label == "Cross-Listed As":
+                    cross_listed_as = [li.text.strip() for li in lis]
+
+        course_data["description"] = description
+        course_data["prerequisites"] = prerequisites
+        course_data["typically_offered"] = typically_offered
+        course_data["cross_listed_as"] = cross_listed_as
+
+        return course_data
+
+    def scrape_batch_of_course_descriptions(self, batch_size=10):
+        """Scrape descriptions of a batch of courses and maintain record of the courses that have been scraped"""
+        scrape_count = 0
+        for department_courses in self.course_data.values():
+            for course_data in department_courses:
+                course_number = course_data["number"]
+                if course_number not in self.courses_with_scraped_description:
+                    print(f"{scrape_count + 1}: ", end="")
+                    self.get_course_description(course_data)
+                    self.courses_with_scraped_description.append(course_data["number"])
+                    scrape_count += 1
+                    if scrape_count >= batch_size:
+                        return
+                    time.sleep(config.get("sleep_time_sec"))
 
 
 if __name__ == "__main__":
     scraper = DepartmentCourseCatalogsScraper()
     scraper.run()
+    print(f"Number of courses with scraped description: {len(scraper.courses_with_scraped_description)}")
+    print(f"Time elapsed: {scraper.get_elapsed_time():.2f} seconds")
