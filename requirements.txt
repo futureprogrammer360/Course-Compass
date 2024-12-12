@@ -1,4 +1,6 @@
 beautifulsoup4
+fastapi[standard]
+motor
 pymongo
 python-dotenv
 PyYAML
