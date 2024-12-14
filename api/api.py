@@ -7,11 +7,19 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import motor.motor_asyncio
 
 load_dotenv()
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 uri = os.getenv("MONGODB_URI")
 client = motor.motor_asyncio.AsyncIOMotorClient(uri)
