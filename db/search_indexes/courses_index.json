@@ -1,0 +1,31 @@
+{
+  "name": "courses-index",
+  "collection": "courses",
+  "definition": {
+    "mappings": {
+      "dynamic": false,
+      "fields": {
+        "number": [
+          {
+            "type": "autocomplete"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "university_id": {
+          "type": "token"
+        }
+      }
+    },
+    "synonyms": [
+      {
+        "analyzer": "lucene.standard",
+        "name": "department_codes_mapping",
+        "source": {
+          "collection": "synonymous_department_codes"
+        }
+      }
+    ]
+  }
+}
