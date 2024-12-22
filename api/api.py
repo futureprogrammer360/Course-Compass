@@ -51,8 +51,58 @@ async def get_courses(
     """
     if query:
         pipeline = [
-            {"$search": {"index": "courses-autocomplete", "autocomplete": {"query": query, "path": "number"}}},
-            {"$match": {"university_id": university_id}}
+            {
+                "$search": {
+                    "index": "courses-index",
+                    "compound": {
+                        "should": [
+                            {  # Exact full text matching, accepts mapped department code synonyms
+                                "text": {
+                                    "query": query,
+                                    "path": "number",
+                                    "synonyms": "department_codes_mapping"
+                                }
+                            },
+                            {  # Fuzzy full text matching
+                                "text": {
+                                    "query": query,
+                                    "path": "number",
+                                    "fuzzy": {
+                                        "maxEdits": 1,
+                                        "prefixLength": 1
+                                    }
+                                }
+                            },
+                            {  # Exact autocomplete matching
+                                "autocomplete": {
+                                    "query": query,
+                                    "path": "number",
+                                    "tokenOrder": "sequential"
+                                }
+                            },
+                            {  # Fuzzy autocomplete matching
+                                "autocomplete": {
+                                    "query": query,
+                                    "path": "number",
+                                    "fuzzy": {
+                                        "maxEdits": 1,
+                                        "prefixLength": 1
+                                    },
+                                    "tokenOrder": "sequential"
+                                }
+                            }
+                        ],
+                        "filter": [
+                            {
+                                "equals": {
+                                    "value": university_id,
+                                    "path": "university_id"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         ]
         if limit:
             pipeline.append({"$limit": limit})
