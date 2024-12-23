@@ -99,7 +99,8 @@ async def get_courses(
                                     "path": "university_id"
                                 }
                             }
-                        ]
+                        ],
+                        "minimumShouldMatch": 2
                     }
                 }
             }
