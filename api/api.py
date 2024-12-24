@@ -105,17 +105,25 @@ async def get_courses(
                 }
             }
         ]
-        if limit:
-            pipeline.append({"$limit": limit})
-        documents = db["courses"].aggregate(pipeline)
     else:
-        documents = db["courses"].find({
-            "university_id": university_id
-        })
-        if limit:
-            documents = documents.limit(limit)
+        pipeline = [
+            {
+                "$search": {
+                    "index": "courses-index",
+                    "equals": {
+                        "path": "university_id",
+                        "value": university_id
+                    }
+                }
+            }
+        ]
 
+    if limit:
+        pipeline.append({"$limit": limit})
+
+    documents = db["courses"].aggregate(pipeline)
     documents = await documents.to_list()
+
     if len(documents) == 0:
         raise HTTPException(status_code=404, detail="No courses found")
     return documents
