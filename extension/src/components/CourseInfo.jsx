@@ -2,6 +2,9 @@ function CourseInfo({ courseData }) {
   if (courseData === null) {
     return null;
   }
+  if (courseData.description === null) {
+    courseData.description = "";
+  }
   return (
     <div id="course-info">
       {courseData.hasError ? (
