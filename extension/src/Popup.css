@@ -1,0 +1,31 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 400px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  float: right;
+  width: 8%;
+  height: 25px;
+}
+
+button:hover {
+  background: #ccc;
+}
+
+input[type=text] {
+  width: 92%;
+  height: 25px;
+  border: none;
+  background: #eee;
+}
+
+p,
+input[type=text] {
+  font-size: 1rem;
+}
