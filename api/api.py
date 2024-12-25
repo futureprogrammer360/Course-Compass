@@ -4,12 +4,15 @@ API providing access to the database that stores course data
 """
 
 import os
+import re
 from typing import Annotated
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 import motor.motor_asyncio
+
+import utils
 
 load_dotenv()
 
@@ -25,6 +28,8 @@ app.add_middleware(
 uri = os.getenv("MONGODB_URI")
 client = motor.motor_asyncio.AsyncIOMotorClient(uri)
 db = client["db"]
+
+synonymous_department_codes = utils.load_synonyms("synonymous_department_codes")
 
 
 @app.get("/courses/{university_id}")
@@ -49,62 +54,75 @@ async def get_courses(
     Raises:
         HTTPException: No courses found with the given arguments
     """
+    pipelines = []
     if query:
-        pipeline = [
-            {
-                "$search": {
-                    "index": "courses-index",
-                    "compound": {
-                        "should": [
-                            {  # Exact full text matching, accepts mapped department code synonyms
-                                "text": {
-                                    "query": query,
-                                    "path": "number",
-                                    "synonyms": "department_codes_mapping"
-                                }
-                            },
-                            {  # Fuzzy full text matching
-                                "text": {
-                                    "query": query,
-                                    "path": "number",
-                                    "fuzzy": {
-                                        "maxEdits": 1,
-                                        "prefixLength": 1
+        query = query.upper()
+        queries = [query]
+
+        # If query starts with a department code with synonyms, create query variations from synonyms
+        match = re.match("[A-Z]+", query)
+        if match is not None and match.group() in synonymous_department_codes:
+            for synonymous_department_code in synonymous_department_codes[match.group()]:
+                queries.append(re.sub("[A-Z]+", synonymous_department_code, query, count=1))
+
+        # Create an aggregation pipeline for each variation of the query
+        for query in queries:
+            pipeline = [
+                {
+                    "$search": {
+                        "index": "courses-index",
+                        "compound": {
+                            "should": [
+                                {  # Exact full text matching, accepts mapped department code synonyms
+                                    "text": {
+                                        "query": query,
+                                        "path": "number",
+                                        "synonyms": "department_codes_mapping"
+                                    }
+                                },
+                                {  # Fuzzy full text matching
+                                    "text": {
+                                        "query": query,
+                                        "path": "number",
+                                        "fuzzy": {
+                                            "maxEdits": 1,
+                                            "prefixLength": 1
+                                        }
+                                    }
+                                },
+                                {  # Exact autocomplete matching
+                                    "autocomplete": {
+                                        "query": query,
+                                        "path": "number",
+                                        "tokenOrder": "sequential"
+                                    }
+                                },
+                                {  # Fuzzy autocomplete matching
+                                    "autocomplete": {
+                                        "query": query,
+                                        "path": "number",
+                                        "fuzzy": {
+                                            "maxEdits": 1,
+                                            "prefixLength": 1
+                                        },
+                                        "tokenOrder": "sequential"
                                     }
                                 }
-                            },
-                            {  # Exact autocomplete matching
-                                "autocomplete": {
-                                    "query": query,
-                                    "path": "number",
-                                    "tokenOrder": "sequential"
+                            ],
+                            "filter": [
+                                {
+                                    "equals": {
+                                        "path": "university_id",
+                                        "value": university_id
+                                    }
                                 }
-                            },
-                            {  # Fuzzy autocomplete matching
-                                "autocomplete": {
-                                    "query": query,
-                                    "path": "number",
-                                    "fuzzy": {
-                                        "maxEdits": 1,
-                                        "prefixLength": 1
-                                    },
-                                    "tokenOrder": "sequential"
-                                }
-                            }
-                        ],
-                        "filter": [
-                            {
-                                "equals": {
-                                    "value": university_id,
-                                    "path": "university_id"
-                                }
-                            }
-                        ],
-                        "minimumShouldMatch": 2
+                            ],
+                            "minimumShouldMatch": 2
+                        }
                     }
                 }
-            }
-        ]
+            ]
+            pipelines.append(pipeline)
     else:
         pipeline = [
             {
@@ -117,12 +135,17 @@ async def get_courses(
                 }
             }
         ]
+        pipelines.append(pipeline)
 
     if limit:
-        pipeline.append({"$limit": limit})
+        for pipeline in pipelines:
+            pipeline.append({"$limit": limit})
 
-    documents = db["courses"].aggregate(pipeline)
-    documents = await documents.to_list()
+    for pipeline in pipelines:
+        documents = db["courses"].aggregate(pipeline)
+        documents = await documents.to_list()
+        if len(documents) > 0:
+            break
 
     if len(documents) == 0:
         raise HTTPException(status_code=404, detail="No courses found")
