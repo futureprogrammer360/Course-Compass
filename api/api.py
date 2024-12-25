@@ -8,7 +8,7 @@ import re
 from typing import Annotated
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Path, Query
+from fastapi import FastAPI, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 import motor.motor_asyncio
 
@@ -50,9 +50,6 @@ async def get_courses(
 
     Returns:
         A list of dicts containing data on courses
-
-    Raises:
-        HTTPException: No courses found with the given arguments
     """
     pipelines = []
     if query:
@@ -147,6 +144,4 @@ async def get_courses(
         if len(documents) > 0:
             break
 
-    if len(documents) == 0:
-        raise HTTPException(status_code=404, detail="No courses found")
     return documents

@@ -29,13 +29,13 @@ function Popup() {
 
     if (response.ok) {
       let data = await response.json();
-      let courseData = data[0];
-      setCourseData({
-        hasError: false,
-        ...courseData
-      });
-    } else {
-      if (response.status === 404) {
+      if (data.length > 0) {
+        let courseData = data[0];
+        setCourseData({
+          hasError: false,
+          ...courseData
+        });
+      } else {
         setCourseData({
           hasError: true,
           errorMessage: 'No course found'
