@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Popup.css';
 import CourseSearchForm from './components/CourseSearchForm.jsx';
 import CourseInfo from './components/CourseInfo.jsx';
 
 function Popup() {
   const [courseData, setCourseData] = useState(null);
+
+  const searchListener = (message, sender, sendResponse) => {
+    search(message.query);
+  }
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener(searchListener);
+    return () => chrome.runtime.onMessage.removeListener(searchListener);
+  }, []);
 
   async function fetchCourseData(universityId, courseNumber, limit = 1) {
     let url = `http://0.0.0.0:8000/courses/${universityId}?limit=${limit}&query=${courseNumber}`;
