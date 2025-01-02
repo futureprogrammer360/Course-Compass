@@ -10,6 +10,7 @@ from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import FastAPI, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 import motor.motor_asyncio
 
 import utils
@@ -145,3 +146,6 @@ async def get_courses(
             break
 
     return documents
+
+
+handler = Mangum(app, lifespan="off")
