@@ -7,9 +7,11 @@ const API_URL = process.env.API_URL;
 
 function Popup() {
   const [courseData, setCourseData] = useState(null);
+  const [inputValue, setInputValue] = useState('');
 
   const searchListener = (message, sender, sendResponse) => {
     search(message.query);
+    setInputValue(message.query);
   }
 
   useEffect(() => {
@@ -57,7 +59,11 @@ function Popup() {
 
   return (
     <>
-      <CourseSearchForm searchCallback={search} />
+      <CourseSearchForm
+        searchCallback={search}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+      />
       <CourseInfo courseData={courseData} />
     </>
   );
