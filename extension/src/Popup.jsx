@@ -3,6 +3,8 @@ import './Popup.css';
 import CourseSearchForm from './components/CourseSearchForm.jsx';
 import CourseInfo from './components/CourseInfo.jsx';
 
+const API_URL = process.env.API_URL;
+
 function Popup() {
   const [courseData, setCourseData] = useState(null);
 
@@ -16,7 +18,7 @@ function Popup() {
   }, []);
 
   async function fetchCourseData(universityId, courseNumber, limit = 1) {
-    let url = `http://0.0.0.0:8000/courses/${universityId}?limit=${limit}&query=${courseNumber}`;
+    let url = `${API_URL}/courses/${universityId}?limit=${limit}&query=${courseNumber}`;
     try {
       let response = await fetch(url);
       return response;
