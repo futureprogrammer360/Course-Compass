@@ -17,7 +17,7 @@ function CourseSearchForm({ searchCallback }) {
         type="text"
         name="course-number-input"
         placeholder="Course Number e.g. COMPSCI 101L"
-        autocomplete="off"
+        autoComplete="off"
         autoFocus
       />
       <button type="submit">
