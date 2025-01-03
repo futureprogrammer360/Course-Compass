@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import './Popup.css';
 import CourseSearchForm from './components/CourseSearchForm.jsx';
 import CourseInfo from './components/CourseInfo.jsx';
@@ -7,6 +7,7 @@ const API_URL = process.env.API_URL;
 
 function Popup() {
   const [courseData, setCourseData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
   const searchListener = (message, sender, sendResponse) => {
@@ -30,6 +31,7 @@ function Popup() {
   }
 
   let search = async courseNumber => {
+    setIsLoading(true);
     let response = await fetchCourseData('duke_university', courseNumber.toUpperCase());
 
     if (response === null) {
@@ -55,6 +57,7 @@ function Popup() {
         });
       }
     }
+    setIsLoading(false);
   };
 
   return (
@@ -64,7 +67,11 @@ function Popup() {
         inputValue={inputValue}
         setInputValue={setInputValue}
       />
-      <CourseInfo courseData={courseData} />
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <CourseInfo courseData={courseData} />
+      )}
     </>
   );
 }
