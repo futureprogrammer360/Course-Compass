@@ -7,6 +7,7 @@ const API_URL = process.env.API_URL;
 
 function Popup() {
   const [courseData, setCourseData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
   const searchListener = (message, sender, sendResponse) => {
@@ -30,7 +31,9 @@ function Popup() {
   }
 
   let search = async courseNumber => {
+    setIsLoading(true);
     let response = await fetchCourseData('duke_university', courseNumber.toUpperCase());
+    setIsLoading(false);
 
     if (response === null) {
       setCourseData({
@@ -64,7 +67,11 @@ function Popup() {
         inputValue={inputValue}
         setInputValue={setInputValue}
       />
-      <CourseInfo courseData={courseData} />
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <CourseInfo courseData={courseData} />
+      )}
     </>
   );
 }
