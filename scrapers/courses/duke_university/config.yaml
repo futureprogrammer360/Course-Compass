@@ -1,4 +1,14 @@
 department_catalog_url: https://trinity.duke.edu/departments
+additional_course_catalog_urls:
+  Arabic: https://asianmideast.duke.edu/courses/language/arabic
+  Chinese: https://asianmideast.duke.edu/courses/language/chinese
+  Hebrew: https://asianmideast.duke.edu/courses/language/hebrew
+  Hindi: https://asianmideast.duke.edu/courses/language/hindi
+  Japanese: https://asianmideast.duke.edu/courses/language/japanese
+  Korean: https://asianmideast.duke.edu/courses/language/korean
+  Persian: https://asianmideast.duke.edu/courses/language/persian
+  Turkish: https://asianmideast.duke.edu/courses/language/turkish
+  Urdu: https://asianmideast.duke.edu/courses/language/urdu
 curriculum_codes:
   areas_of_knowledge:
     - ALP

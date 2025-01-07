@@ -57,6 +57,9 @@ class DepartmentCourseCatalogsScraper:
         """
         if not self.course_catalog_urls:
             self.get_course_catalog_urls()
+            # Add additional course catalogs not scraped from department pages
+            for additional_course_catalog_name, additional_course_catalog_url in config.get("additional_course_catalog_urls").items():
+                self.course_catalog_urls[additional_course_catalog_name] = additional_course_catalog_url
 
         if not self.course_data:
             for department_name in self.course_catalog_urls:
