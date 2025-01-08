@@ -153,9 +153,9 @@ class DepartmentCourseCatalogsScraper:
             div = section_section.select_one("div#block-tts-labs-ctrs-content")
         left_div, right_div = div.select("div.content > div > div")
 
-        description = left_div.select_one("div")
-        if description:
-            description = description.text
+        description_divs = left_div.find_all("div", recursive=False)
+        if description_divs:
+            description = "\n".join([description_div.text for description_div in description_divs])
         else:
             description = None
 
