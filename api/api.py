@@ -55,6 +55,12 @@ async def get_courses(
     pipelines = []
     if query:
         query = query.upper()
+        query = query.strip()
+        query = re.sub("[^a-zA-Z0-9]", " ", query)  # Replace non-alphanumeric characters (i.e. dashes) with spaces
+        query = re.sub(" +", " ", query)  # Replace consecutive spaces with one space
+        query = re.sub(r"([a-zA-Z])(\d)", r"\1 \2", query)  # Insert space between letter-digit boundaries
+        query = re.sub(r"(\d)([a-zA-Z])", r"\1 \2", query)  # Insert space between digit-letter boundaries
+
         queries = [query]
 
         # If query starts with a department code with synonyms, create query variations from synonyms
