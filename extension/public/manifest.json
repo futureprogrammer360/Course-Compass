@@ -2,6 +2,13 @@
   "manifest_version": 3,
   "name": "Course Compass: College Class Info Lookup",
   "version": "1.0.0",
+  "description": "Search engine for university course data",
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "action": {
     "default_popup": "index.html"
   },
