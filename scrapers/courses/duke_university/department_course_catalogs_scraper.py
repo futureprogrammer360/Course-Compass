@@ -1,6 +1,6 @@
 """department_course_catalogs_scraper.py
 
-Program that downloads data about Duke University courses from Trinity College of Arts & Sciences department course catalogs (e.g. https://cs.duke.edu/course-catalog)
+Program that downloads data about Duke University courses from Trinity College of Arts & Sciences department course catalogs (e.g. https://cs.duke.edu/course-catalog) and additional course catalogs with similar table format (listed in config.yaml)
 """
 
 import re
