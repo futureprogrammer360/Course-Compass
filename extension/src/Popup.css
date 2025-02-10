@@ -29,3 +29,35 @@ p,
 input[type=text] {
   font-size: 1rem;
 }
+
+h1 {
+  margin-bottom: 2px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+ul {
+  padding-left: 20px;
+  margin-top: 1px;
+}
+
+.column-container {
+  display: flex;
+}
+
+.left-column {
+  width: 70%;
+  padding-right: 5px;
+}
+
+.right-column {
+  width: 30%;
+  padding-left: 5px;
+}
+
+.right-column p {
+  margin-top: 5px;
+}
