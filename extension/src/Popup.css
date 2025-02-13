@@ -2,15 +2,24 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 40px;
+}
+
 body {
-  width: 400px;
+  min-width: 400px;
+  padding-bottom: 10px;
+  margin-bottom: 0;
+}
+
+form {
+  margin-bottom: 0;
 }
 
 button {
   cursor: pointer;
   border: none;
-  float: right;
-  width: 8%;
+  width: 25px;
   height: 25px;
 }
 
@@ -19,13 +28,14 @@ button:hover {
 }
 
 input[type=text] {
-  width: 92%;
+  width: 93%;
   height: 25px;
   border: none;
   background: #eee;
 }
 
 p,
+li,
 input[type=text] {
   font-size: 1rem;
 }

@@ -51,6 +51,8 @@ function Popup() {
           hasError: false,
           ...courseData
         });
+        document.body.style.width = '800px';
+        document.body.style.paddingBottom = 0;
       } else {
         setCourseData({
           hasError: true,
