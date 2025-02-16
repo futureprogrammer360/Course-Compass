@@ -21,10 +21,15 @@ function Popup() {
   }, []);
 
   async function fetchCourseData(universityId, courseNumber, limit = 1) {
-    courseNumber = courseNumber.replaceAll('=', ' ');
-    let url = `${API_URL}/courses/${universityId}?limit=${limit}&query=${courseNumber}`;
+    let url = new URL(`${API_URL}/courses/${universityId}`);
+    let params = {
+      limit: limit,
+      query: courseNumber
+    };
+    url.search = new URLSearchParams(params).toString();
+
     try {
-      let response = await fetch(url);
+      let response = await fetch(url.toString());
       return response;
     } catch (e) {
       return null;
