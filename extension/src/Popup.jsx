@@ -21,6 +21,7 @@ function Popup() {
   }, []);
 
   async function fetchCourseData(universityId, courseNumber, limit = 1) {
+    courseNumber = courseNumber.replaceAll('=', ' ');
     let url = `${API_URL}/courses/${universityId}?limit=${limit}&query=${courseNumber}`;
     try {
       let response = await fetch(url);
@@ -32,7 +33,7 @@ function Popup() {
 
   let search = async courseNumber => {
     setIsLoading(true);
-    let response = await fetchCourseData('duke_university', courseNumber.toUpperCase());
+    let response = await fetchCourseData('duke_university', courseNumber);
     setIsLoading(false);
 
     if (response === null) {
