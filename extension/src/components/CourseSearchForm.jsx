@@ -6,7 +6,9 @@ function CourseSearchForm({ searchCallback, inputValue, setInputValue }) {
     e.preventDefault();
     let formData = new FormData(e.target);
     let courseNumber = formData.get('course-number-input').trim();
-    if (courseNumber) {
+
+    const alphanumericRegex = /[a-zA-Z0-9]/;
+    if (alphanumericRegex.test(courseNumber)) {
       searchCallback(courseNumber);
     }
   };
