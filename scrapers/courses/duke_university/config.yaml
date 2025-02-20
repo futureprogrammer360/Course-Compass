@@ -29,3 +29,4 @@ curriculum_codes:
     - W
 course_descriptions_scraper_batch_size: 1000
 sleep_time_sec: 2
+curriculum_api_data_downloader_batch_size: 1000
