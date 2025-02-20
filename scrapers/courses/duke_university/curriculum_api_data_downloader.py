@@ -145,6 +145,10 @@ class CurriculumAPIDataDownloader:
             "number": f"{course_info['subject'].strip()} {course_info['catalog_nbr'].strip()}",
             "crse_id": course_info["crse_id"],
             "crse_offer_nbr": course_info["crse_offer_nbr"],
+            "codes": [],
+            "description": None,
+            "prerequisites": None,
+            "typically_offered": course_info["ssr_crse_typoff_cd_lov_descr"],
             "cross_listed_as": []
         }
 
