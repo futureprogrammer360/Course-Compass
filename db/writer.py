@@ -7,10 +7,14 @@ import os
 import json
 from pathlib import Path
 
+import yaml
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
 load_dotenv()
+
+with open("data_sources_config.yaml") as file:
+    data_sources_config = yaml.load(file, Loader=yaml.FullLoader)
 
 with open(os.path.join("..", "universities.json"), "r") as file:
     universities = json.load(file)
@@ -33,8 +37,10 @@ for university_id in os.listdir(os.path.join("..", "cache")):
         print(f"Added university {university_id}")
 
     # Add university's courses to database
-    course_data_file_paths = Path(os.path.join("..", "cache", university_id)).rglob("course_data.json")
-    for course_data_file_path in course_data_file_paths:
+    university_data_sources = data_sources_config[university_id]
+    course_data_file_paths = [os.path.join("..", "cache", university_id, data_source, "course_data.json") for data_source in university_data_sources]
+    for i, course_data_file_path in enumerate(course_data_file_paths):
+        print(f"Processing course data from source {university_id}-{i}")
         with open(course_data_file_path, "r") as file:
             courses = json.load(file)
 
@@ -42,13 +48,18 @@ for university_id in os.listdir(os.path.join("..", "cache")):
             for course_data in courses[department]:
                 course_data["university_id"] = university_id
                 course_data["department"] = department
+                course_data["src"] = i
                 course_id = "_".join(course_data["number"].replace("-", "_").lower().split(" "))
                 course_id = f"{university_id}-{course_id}"
                 course_data["_id"] = course_id
 
-                db["courses"].update_one(
-                    filter={"_id": course_id},
-                    update={"$set": course_data},
-                    upsert=True
-                )
-                print(f"Added course {course_id}")
+                existing_course = db["courses"].find_one({"_id": course_id})
+                if existing_course and existing_course["src"] < i:
+                    print(f"Course {course_id} already in database from another source, skipping")
+                else:
+                    db["courses"].update_one(
+                        filter={"_id": course_id},
+                        update={"$set": course_data},
+                        upsert=True
+                    )
+                    print(f"Added/updated course {course_id}")

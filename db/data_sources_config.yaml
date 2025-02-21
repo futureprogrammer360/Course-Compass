@@ -1,0 +1,9 @@
+# Configuration file for how each university's course data from various sources should be written to the database
+# More specifically, the lists below specify the order in which data files are processed
+# After a file A is read, the course data in it is written to the database, e.g. courses 1, 2, and 3
+# When processing a file B after A, if B contains courses 2, 3, 4, then courses 2 and 3 are skipped, and course 4 is written to the database
+# Each data source listed below corresponds to a directory name in the cache folder under the university
+
+duke_university:
+  - department_course_catalogs_scraper  # 0
+  - curriculum_api_data_downloader  # 1
