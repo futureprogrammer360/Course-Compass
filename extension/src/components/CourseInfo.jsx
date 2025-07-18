@@ -35,7 +35,7 @@ function CourseInfo({ courseData }) {
               <p>
                 <a href={courseData.url} target="_blank">Course Info Page</a>
                 &nbsp;|&nbsp;
-                <a href={`https://www.google.com/search?q=${courseData.number}`} target="_blank">Google Search</a>
+                <a href={`https://www.google.com/search?q=${encodeURIComponent(courseData.number)}`} target="_blank">Google Search</a>
               </p>
             </div>
 
