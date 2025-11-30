@@ -5,7 +5,6 @@ Program that writes data on universities and courses to database
 
 import os
 import json
-from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
