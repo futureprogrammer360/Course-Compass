@@ -9,10 +9,11 @@ additional_course_catalog_urls:
   Persian: https://asianmideast.duke.edu/courses/language/persian
   Turkish: https://asianmideast.duke.edu/courses/language/turkish
   Urdu: https://asianmideast.duke.edu/courses/language/urdu
-  Documentary Studies: https://documentarystudies.duke.edu/courses
   Information Science + Studies: https://iss.duke.edu/courses
   Jewish Studies: https://jewishstudies.duke.edu/courses
   Latino/a Studies in the Global South: https://latinostudies.duke.edu/courses
+skip_first_table_departments:
+  - African & African American Studies
 curriculum_codes:
   areas_of_knowledge:
     - ALP
@@ -27,6 +28,13 @@ curriculum_codes:
     - R
     - STS
     - W
+  distribution_categories:
+    - CE
+    - HI
+    - IJ
+    - NW
+    - QC
+    - SB
 course_descriptions_scraper_batch_size: 1000
 sleep_time_sec: 2
 curriculum_api_data_downloader_batch_size: 1000

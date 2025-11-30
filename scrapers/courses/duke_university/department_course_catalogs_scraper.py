@@ -24,6 +24,7 @@ CACHE_DIR = path.abspath(path.join(
 makedirs(CACHE_DIR, exist_ok=True)
 
 valid_curriculum_codes = [code for code_list in config.get("curriculum_codes").values() for code in code_list]
+skip_first_table_departments = config.get("skip_first_table_departments")
 
 
 class DepartmentCourseCatalogsScraper:
@@ -120,7 +121,10 @@ class DepartmentCourseCatalogsScraper:
 
         response = requests.get(course_catalog_url)
         soup = BeautifulSoup(response.content, "html.parser")
-        table = soup.select_one("table.tablesaw")
+        if department_name in skip_first_table_departments:
+            table = soup.select("table.tablesaw")[1]
+        else:
+            table = soup.select_one("table.tablesaw")
         for tr in table.select("tbody tr"):
             number = re.sub(" +", " ", tr.select("td")[0].text.strip())
             title = re.sub(" +", " ", tr.select("td")[1].text.strip())
